@@ -118,3 +118,31 @@ def get_snakes_by_species(species_id):
 
     return snakes
 
+def create_snake(new_snake):
+    """Adds a new snake dictionary
+
+    Args:
+        snake (dictionary): Information about the snake
+
+    Returns:
+        dictionary: Returns the snake dictionary
+    """
+    with sqlite3.connect("./snakes.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        INSERT INTO Snakes
+            ( name, owner_id, species_id, gender, color )
+        VALUES
+            ( ?, ?, ?, ?, ?);
+        """, (new_snake['name'], new_snake['owner_id'],
+              new_snake['species_id'], new_snake['gender'],
+              new_snake['color'], ))
+        
+        id = db_cursor.lastrowid
+
+        new_snake['id'] = id
+    
+    return new_snake
+
+

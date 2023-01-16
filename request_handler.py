@@ -3,7 +3,7 @@ from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from views import get_all_owners, get_all_snakes, get_all_species
 from views import get_single_owner, get_single_snake, get_single_species
-from views import get_snakes_by_species
+from views import get_snakes_by_species, create_snake
 
 # Method mapper for all resources
 method_mapper = {
@@ -100,27 +100,33 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handles POST requests to the server"""
 
-        self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
 
         (resource, id) = self.parse_url(self.path)
 
-        # Initialize new resource
         new_resource = None
 
-        # Add a new animal to the list
-        if resource == "animals":
-            new_resource = create_animal(post_body)
-        elif resource == "customers":
-            new_resource = create_customer(post_body)
-        elif resource == "locations":
-            new_resource = create_location(post_body)
-        elif resource == "employees":
-            new_resource = create_employee(post_body)
+        if resource == "snakes":
 
-        # Encode the new resource and send in response
+            if (
+                "name" in post_body
+                and "owner_id" in post_body
+                and "species_id" in post_body
+                and "gender" in post_body
+                and "color" in post_body
+                ) and len(post_body) < 6:
+                    self._set_headers(201)
+                    new_resource = create_snake(post_body)
+            else:
+                self._set_headers(400)
+                
+                if len(post_body) >= 6:
+                    new_resource = "The submission has an additional property and is invalid.  This resource should only have the following properties: name, owner_id, species_id, gender, and color."
+                else:
+                    new_resource = {"message":f'{"name is required" if "name" not in post_body else ""} {"owner_id is required" if "owner_id" not in post_body else ""} {"species_id is required" if "species_id" not in post_body else ""} {"gender is required" if "gender" not in post_body else ""} {"color is required" if "color" not in post_body else ""}'}
+
         self.wfile.write(f"{new_resource}".encode())
 
     def do_PUT(self):
