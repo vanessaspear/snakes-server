@@ -55,7 +55,13 @@ class HandleRequests(BaseHTTPRequestHandler):
             response = method_mapper[resource]["single"](id)
 
             if response is not None:
+
+                if response == "Aonyx cinerea":
+
+                    self._set_headers(405)
+
                 self._set_headers(200)
+
             else:
                 self._set_headers(404)
                 response = "Resource doesn't exist.  Please enter a valid resource id."

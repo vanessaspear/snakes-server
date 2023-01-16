@@ -56,8 +56,11 @@ def get_single_snake(id):
             s.owner_id,
             s.species_id,
             s.gender,
-            s.color
+            s.color,
+            sp.name species_name
         FROM Snakes s
+        JOIN Species sp
+            ON sp.id = s.species_id
         WHERE s.id = ?
         """, ( id, ))
 
@@ -66,6 +69,10 @@ def get_single_snake(id):
         if data is None:
 
             return None
+
+        if data['species_name'] == "Aonyx cinerea":
+
+            return "Aonyx cinerea"
             
         snake = Snake(data['id'], data['name'], data['owner_id'], data['species_id'], data['gender'], data['color'])
 
