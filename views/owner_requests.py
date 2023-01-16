@@ -32,3 +32,37 @@ def get_all_owners():
             owners.append(owner.__dict__)
 
     return owners
+
+    # Function with a single parameter
+def get_single_owner(id):
+    """Finds the matching owner dictionary for the specified owner id
+
+    Args:
+        id (int): owner id
+
+    Returns:
+        object: owner dictionary
+    """
+    with sqlite3.connect("./snakes.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        SELECT
+            o.id,
+            o.first_name,
+            o.last_name,
+            o.email
+        FROM Owners o
+        WHERE o.id = ?
+        """, ( id, ))
+
+        data = db_cursor.fetchone()
+
+        if data is None:
+
+            return None
+            
+        owner = Owner(data['id'], data['first_name'], data['last_name'], data['email'])
+
+        return owner.__dict__
