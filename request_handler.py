@@ -2,19 +2,20 @@ import json
 from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from views import get_all_owners, get_all_snakes, get_all_species
+from views import get_single_owner, get_single_snake, get_single_species
 
 # Method mapper for all resources
 method_mapper = {
     "owners": {
-        # "single": get_single_owner,
+        "single": get_single_owner,
         "all": get_all_owners
     },
     "snakes": {
-        # "single": get_single_owner,
+        "single": get_single_snake,
         "all": get_all_snakes
     },
     "species": {
-        # "single": get_single_owner,
+        "single": get_single_species,
         "all": get_all_species
     }
 }
@@ -57,8 +58,7 @@ class HandleRequests(BaseHTTPRequestHandler):
                 self._set_headers(200)
             else:
                 self._set_headers(404)
-                response = {
-                    "message": f"{id} can not be found.  Please enter a valid resource id."}
+                response = "Resource doesn't exist.  Please enter a valid resource id."
         else:
             self._set_headers(200)
             response = method_mapper[resource]["all"]()
