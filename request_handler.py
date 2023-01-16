@@ -3,6 +3,7 @@ from urllib.parse import urlparse, parse_qs
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from views import get_all_owners, get_all_snakes, get_all_species
 from views import get_single_owner, get_single_snake, get_single_species
+from views import get_snakes_by_species
 
 # Method mapper for all resources
 method_mapper = {
@@ -83,18 +84,16 @@ class HandleRequests(BaseHTTPRequestHandler):
             response = self.get_all_or_single(resource, id)
         else:
             (resource, query) = parsed
-            self._set_headers(200)
-            if query.get('email') and resource == 'customers':
-                response = get_customer_by_email(query['email'][0])
+            
+            if query.get('species') and resource == 'snakes':
+                
+                response = get_snakes_by_species(query['species'][0])
 
-            if query.get('location_id') and resource == 'animals':
-                response = get_animals_by_location(query['location_id'][0])
-
-            if query.get('status') and resource == 'animals':
-                response = get_animals_by_status(query['status'][0])
-
-            if query.get('location_id') and resource == 'employees':
-                response = get_employees_by_location(query['location_id'][0])
+                if response is not None:
+                    self._set_headers(200) 
+                else: 
+                    self._set_headers(404)
+                    response = "Resource doesn't exist.  Please enter a valid resource id."
 
         self.wfile.write(json.dumps(response).encode())
 
