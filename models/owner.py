@@ -1,3 +1,5 @@
+# Defines the owner class
+
 class Owner():
     """Creates an owner object
     """

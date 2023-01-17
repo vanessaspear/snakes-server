@@ -1,3 +1,5 @@
+# Defines the snake class
+
 class Snake():
     """Creates a snake object
     """

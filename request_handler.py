@@ -21,6 +21,7 @@ method_mapper = {
     }
 }
 
+#Custom class to handle basic HTTP requests
 class HandleRequests(BaseHTTPRequestHandler):
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
     """

@@ -1,3 +1,5 @@
+# Defines the species class
+
 class Species():
     """Creates a species object
     """

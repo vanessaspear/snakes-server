@@ -1,3 +1,4 @@
+#Handles requests to the owners resource
 import sqlite3
 from models import Owner
 

@@ -1,3 +1,4 @@
+#Handles requests to the snake resource
 import sqlite3
 from models import Snake
 

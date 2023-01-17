@@ -1,3 +1,4 @@
+#Handles requests to the species resource
 import sqlite3
 from models import Species
 
