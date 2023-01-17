@@ -71,6 +71,21 @@ class HandleRequests(BaseHTTPRequestHandler):
             response = method_mapper[resource]["all"]()
 
         return response
+    
+    def verify_resource(self, resource):
+        """Verifies that the resource used by the client is supported by the API
+
+        Args:
+            resource (string): Resource requested by the client
+        """
+        valid_resources = ["owners", "snakes", "species"]
+
+        if resource in valid_resources:
+            return True
+        else:
+            self._set_headers(404)
+            response = "Resource doesn't exist.  Please use a valid resource."
+            return response
 
     def do_GET(self):
         """Handles GET requests to the server
