@@ -28,7 +28,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
         """Parse the url into the resource and id"""
         parsed_url = urlparse(path)
-        path_params = parsed_url.path.split('/')  # ['', 'animals', 1]
+        path_params = parsed_url.path.split('/')
         resource = path_params[1]
 
         if parsed_url.query:
@@ -82,36 +82,40 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         if resource in valid_resources:
             return True
-        else:
-            self._set_headers(404)
-            response = "Resource doesn't exist.  Please use a valid resource."
-            return response
+
+        self._set_headers(404)
+        response = {}
+        return response
 
     def do_GET(self):
         """Handles GET requests to the server
         """
         response = {}
-
         parsed = self.parse_url(self.path)
+        (resource, id) = parsed
 
-        if '?' not in self.path:
-            (resource, id) = parsed
-            response = self.get_all_or_single(resource, id)
-        else:
-            (resource, query) = parsed
-            
-            if query.get('species') and resource == 'snakes':
+        resource_validity = self.verify_resource(resource)
+
+        if resource_validity:
+
+            if '?' not in self.path:
+                response = self.get_all_or_single(resource, id)
+            else:
+                parsed = self.parse_url(self.path)
+                (resource, query) = parsed
                 
-                response = get_snakes_by_species(query['species'][0])
+                if query.get('species') and resource == 'snakes':
+                    
+                    response = get_snakes_by_species(query['species'][0])
 
-                if response is not None:
-                    self._set_headers(200) 
-                else: 
-                    self._set_headers(404)
-                    response = "Resource doesn't exist.  Please enter a valid resource id."
+                    if response is not None:
+                        self._set_headers(200) 
+                    else: 
+                        self._set_headers(404)
+                        response = "Resource id doesn't exist.  Please enter a valid resource id."
 
         self.wfile.write(json.dumps(response).encode())
-
+            
     def do_POST(self):
         """Handles POST requests to the server"""
 
@@ -120,54 +124,39 @@ class HandleRequests(BaseHTTPRequestHandler):
         post_body = json.loads(post_body)
 
         (resource, id) = self.parse_url(self.path)
+        resource_validity = self.verify_resource(resource)
+        self._set_headers(404)
+        new_resource = {}
 
-        new_resource = None
+        if resource_validity:
 
-        if resource == "snakes":
+            if resource == "snakes":
 
-            if (
-                "name" in post_body
-                and "owner_id" in post_body
-                and "species_id" in post_body
-                and "gender" in post_body
-                and "color" in post_body
-                ) and len(post_body) < 6:
+                if (
+                    "name" in post_body
+                    and "owner_id" in post_body
+                    and "species_id" in post_body
+                    and "gender" in post_body
+                    and "color" in post_body
+                    ) and len(post_body) < 6:
                     self._set_headers(201)
                     new_resource = create_snake(post_body)
-            else:
-                self._set_headers(400)
-                
-                if len(post_body) >= 6:
-                    new_resource = "The submission has an additional property and is invalid.  This resource should only have the following properties: name, owner_id, species_id, gender, and color."
                 else:
-                    new_resource = {"message":f'{"name is required" if "name" not in post_body else ""} {"owner_id is required" if "owner_id" not in post_body else ""} {"species_id is required" if "species_id" not in post_body else ""} {"gender is required" if "gender" not in post_body else ""} {"color is required" if "color" not in post_body else ""}'}
+                    self._set_headers(400)
+                    
+                    if len(post_body) >= 6:
+                        new_resource = "The submission has an additional property and is invalid.  This resource should only have the following properties: name, owner_id, species_id, gender, and color."
+                    else:
+                        new_resource = {"message":f'{"name is required" if "name" not in post_body else ""} {"owner_id is required" if "owner_id" not in post_body else ""} {"species_id is required" if "species_id" not in post_body else ""} {"gender is required" if "gender" not in post_body else ""} {"color is required" if "color" not in post_body else ""}'}
 
         self.wfile.write(f"{new_resource}".encode())
 
     def do_PUT(self):
         """Handles PUT requests to the server
         """
-        content_len = int(self.headers.get('content-length', 0))
-        post_body = self.rfile.read(content_len)
-        post_body = json.loads(post_body)
-
-        (resource, id) = self.parse_url(self.path)
-
-        success = False
-
-        if resource == "animals":
-            success = update_animal(id, post_body)
-        elif resource == "locations":
-            success = update_location(id, post_body)
-        elif resource == "employees":
-            success = update_employee(id, post_body)
-        elif resource == "customers":
-            success = update_customer(id, post_body)
-
-        if success:
-            self._set_headers(204)
-        else:
-            self._set_headers(404)
+        response = {}
+        self._set_headers(404)
+        self.wfile.write(f"{response}".encode())
 
     def _set_headers(self, status):
         """Sets the status code, Content-Type and Access-Control-Allow-Origin
@@ -195,35 +184,9 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_DELETE(self):
         """Deletes dictionary from database
         """
-
-        # Parse the URL
-        (resource, id) = self.parse_url(self.path)
-
-        # Prevent client from deleting customer data
-        if resource == "customers":
-            self._set_headers(405)
-
-            # Encode the new item and send in response
-            self.wfile.write("".encode())
-        else:
-            # Set a 204 response code
-            self._set_headers(204)
-
-            # Delete a single animal from the list
-            if resource == "animals":
-                delete_animal(id)
-
-            # Delete a single location from the list
-            if resource == "locations":
-                delete_location(id)
-
-            # Delete a single location from the list
-            if resource == "employees":
-                delete_employee(id)
-
-            # Encode the new item and send in response
-            self.wfile.write("".encode())
-
+        response = {}
+        self._set_headers(404)
+        self.wfile.write(f"{response}".encode())
 
 def main():
     """Starts the server on port 8088 using the HandleRequests class

@@ -31,7 +31,6 @@ def get_all_species():
 
     return species_list
 
-# Function with a single parameter
 def get_single_species(id):
     """Finds the matching species dictionary for the specified species id
 

@@ -33,7 +33,6 @@ def get_all_owners():
 
     return owners
 
-    # Function with a single parameter
 def get_single_owner(id):
     """Finds the matching owner dictionary for the specified owner id
 
@@ -62,7 +61,7 @@ def get_single_owner(id):
         if data is None:
 
             return None
-            
+        
         owner = Owner(data['id'], data['first_name'], data['last_name'], data['email'])
 
         return owner.__dict__

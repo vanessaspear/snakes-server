@@ -145,4 +145,3 @@ def create_snake(new_snake):
     
     return new_snake
 
-
