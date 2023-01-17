@@ -61,7 +61,8 @@ class HandleRequests(BaseHTTPRequestHandler):
 
                     self._set_headers(405)
 
-                self._set_headers(200)
+                else: 
+                    self._set_headers(200)
 
             else:
                 self._set_headers(404)
@@ -112,7 +113,7 @@ class HandleRequests(BaseHTTPRequestHandler):
                         self._set_headers(200) 
                     else: 
                         self._set_headers(404)
-                        response = "Resource id doesn't exist.  Please enter a valid resource id."
+                        response = "Resource  id doesn't exist.  Please enter a valid resource id."
 
         self.wfile.write(json.dumps(response).encode())
             
@@ -125,7 +126,6 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         (resource, id) = self.parse_url(self.path)
         resource_validity = self.verify_resource(resource)
-        self._set_headers(404)
         new_resource = {}
 
         if resource_validity:
@@ -148,6 +148,11 @@ class HandleRequests(BaseHTTPRequestHandler):
                         new_resource = "The submission has an additional property and is invalid.  This resource should only have the following properties: name, owner_id, species_id, gender, and color."
                     else:
                         new_resource = {"message":f'{"name is required" if "name" not in post_body else ""} {"owner_id is required" if "owner_id" not in post_body else ""} {"species_id is required" if "species_id" not in post_body else ""} {"gender is required" if "gender" not in post_body else ""} {"color is required" if "color" not in post_body else ""}'}
+            else:
+                self._set_headers(405)
+
+        else:
+            self._set_headers(404)
 
         self.wfile.write(f"{new_resource}".encode())
 
@@ -155,7 +160,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Handles PUT requests to the server
         """
         response = {}
-        self._set_headers(404)
+        self._set_headers(405)
         self.wfile.write(f"{response}".encode())
 
     def _set_headers(self, status):
@@ -185,7 +190,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Deletes dictionary from database
         """
         response = {}
-        self._set_headers(404)
+        self._set_headers(405)
         self.wfile.write(f"{response}".encode())
 
 def main():
